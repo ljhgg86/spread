@@ -1,18 +1,14 @@
 <?php
 require 'vendor/autoload.php';
-
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-
 $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader('Xlsx');
 $reader->setReadDataOnly(TRUE);
 $spreadsheet = $reader->load('sheet.xlsx'); //载入excel表格
-
 $worksheet = $spreadsheet->getActiveSheet();
 $highestRow = $worksheet->getHighestRow(); // 总行数
 $highestColumn = $worksheet->getHighestColumn(); // 总列数
 //$highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn); // e.g. 5
-
 for($row=2;$row<=$highestRow;++$row){
     $checkTime = $worksheet->getCellByColumnAndRow(1, $row)->getValue();
     $name = $worksheet->getCellByColumnAndRow(4, $row)->getValue();
@@ -28,7 +24,7 @@ for($row=2;$row<=$highestRow;++$row){
     $hukouAdd = $worksheet->getCellByColumnAndRow(14, $row)->getValue();
     $hukouPCS = $worksheet->getCellByColumnAndRow(15, $row)->getValue();
     $isCHN = $worksheet->getCellByColumnAndRow(16, $row)->getValue();
-    $identity = $worksheet->getCellByColumnAndRow(17, $row)->getValue();
+    $identity = strval($worksheet->getCellByColumnAndRow(17, $row)->getValue());
     $email = $worksheet->getCellByColumnAndRow(18, $row)->getValue();
     $spreadsheet = new Spreadsheet();
     $sheet = $spreadsheet->getActiveSheet();
@@ -55,7 +51,9 @@ for($row=2;$row<=$highestRow;++$row){
     $sheet->mergeCells('B2:C2');
     $sheet->setCellValue('D2','身份证号码');
     $sheet->mergeCells('D2:E2');
-    $sheet->setCellValue('F2',$identity);
+    $sheet->getCell('F2')->setDataType('inlineStr');
+    $sheet->getStyle('F2')->getNumberFormat()->setFormatCode('0');
+    $sheet->setCellValue('F2',$identity.' ');
     $sheet->mergeCells('F2:H2');
 
     $sheet->setCellValue('A3','手机号码');
@@ -109,6 +107,10 @@ for($row=2;$row<=$highestRow;++$row){
     ];
     $sheet->getStyle('A1:H6')->applyFromArray($styleArray);
 
+    $title = ($row-1).'-'.$name.'.xlsx';
     $writer = new Xlsx($spreadsheet);
-    $writer->save('outexcel/'.$name.'-'.$identity.'.xlsx');
+    $writer->save('outexcel/'.($row-1).'-'.$name.'.xlsx');
+    echo("<a href='http://gl.strtv.cn/spread/outexcel/".$title."'>".$checkTime."-".$title."</a><br>");
 }
+echo("分解成功！");
+exit;
