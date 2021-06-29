@@ -2,8 +2,10 @@
 /analysis
 /vendor/
 /phpunit.xml
-sheet.xlsx
+/*.xlsx
+/outexcel/
 /ef/sheet.xlsx
+/ef/outexcel/
 
 ## IDE support
 *.buildpath
